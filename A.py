@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 from geopy.geocoders import Nominatim
+from tkinter import simpledialog
 from tkinter import ttk, messagebox
 from timezonefinder import TimezoneFinder
 from datetime import datetime
@@ -13,9 +14,10 @@ root.geometry("900x500+300+200")
 root.resizable(False, False)
 
 def getWeather():
-    city = textfield.get()
 
-    geolocator = Nominatim(user_agent="geoapiExercises")
+    city = textfield.get()
+    textfield.delete(0, tk.END)
+    geolocator = Nominatim(user_agent="my_weather_app/1.0 (yodishtr@gmail.com)")
     location = geolocator.geocode(city)
     obj = TimezoneFinder()
     result = obj.timezone_at(lng=location.longitude, lat=location.latitude)
@@ -27,7 +29,9 @@ def getWeather():
     name.config(text="Current Weather")
 
     # weather
-    api_key = "3667533e83c428f9c7e3005caa7de24f"
+    root.withdraw()
+    api_key = simpledialog.askstring(title="API KEY", prompt="What is the api key", parent=root)
+    root.deiconify()
     api = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + api_key
     json_data = requests.get(api).json()
     condition = json_data['weather'][0]['main']
@@ -37,8 +41,13 @@ def getWeather():
     humidity = json_data['main']['humidity']
     wind = json_data['wind']['speed']
 
-
-
+    t.config(text=(str(temp) + "˚"))
+    c.config(text=(condition + " | " + " Feels like " + str(temp) + "˚"))
+    w.config(text=wind)
+    h.config(text=humidity)
+    d.config(text=description)
+    p.config(text=pressure)
+    textfield.focus()
 
 
 # search box
@@ -53,7 +62,7 @@ textfield.focus()
 
 search_icon = PhotoImage(file="./pics/search_icon.png")
 my_search_icon = Button(root, image=search_icon, borderwidth=0, cursor="hand2", bg="#404040",
-                        command=getWeather())
+                        command=getWeather)
 my_search_icon.place(x=400, y=34)
 
 # Logo
